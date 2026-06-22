@@ -7,10 +7,12 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   ControlBar,
   GridLayout,
+  LayoutContextProvider,
   LiveKitRoom,
   ParticipantTile,
   RoomAudioRenderer,
   StartAudio,
+  useCreateLayoutContext,
   useChat,
   useConnectionState,
   useLocalParticipant,
@@ -240,6 +242,7 @@ function CallSurface({
 }) {
   const participants = useParticipants();
   const connectionState = useConnectionState();
+  const layoutContext = useCreateLayoutContext();
   const { isCameraEnabled, isMicrophoneEnabled } = useLocalParticipant();
 
   const status = useMemo(() => {
@@ -269,76 +272,78 @@ function CallSurface({
   const StatusIcon = status.icon;
 
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-[#f8fcf4] text-slate-900">
-      <GardenDecorations />
-      <div className="relative z-10 flex min-h-dvh flex-col">
-        <header className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-rose-600 shadow-sm">
-              <Flower2 className="h-7 w-7" />
+    <LayoutContextProvider value={layoutContext}>
+      <main className="relative min-h-dvh overflow-hidden bg-[#f8fcf4] text-slate-900">
+        <GardenDecorations />
+        <div className="relative z-10 flex min-h-dvh flex-col">
+          <header className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-rose-600 shadow-sm">
+                <Flower2 className="h-7 w-7" />
+              </div>
+              <div>
+                <p className="text-sm font-black uppercase text-emerald-700">
+                  {FAMILY.appName}
+                </p>
+                <h1 className="text-2xl font-black text-[#263a2e]">
+                  {FAMILY.roomDisplayName}
+                </h1>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-black uppercase text-emerald-700">
-                {FAMILY.appName}
-              </p>
-              <h1 className="text-2xl font-black text-[#263a2e]">
-                {FAMILY.roomDisplayName}
-              </h1>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className={`inline-flex h-10 items-center gap-2 rounded-2xl border px-4 text-sm font-black ${status.tone}`}
+              >
+                <StatusIcon className="h-4 w-4" />
+                {status.label}
+              </span>
+              <span className="inline-flex h-10 items-center gap-2 rounded-2xl border border-white/80 bg-white/80 px-4 text-sm font-black text-slate-700">
+                <Video className="h-4 w-4" />
+                {participants.length} na sala
+              </span>
+              <button
+                onClick={onLogout}
+                className="inline-flex h-10 items-center gap-2 rounded-2xl border border-rose-200 bg-white/86 px-4 text-sm font-black text-rose-700 transition hover:bg-rose-50"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
             </div>
-          </div>
+          </header>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`inline-flex h-10 items-center gap-2 rounded-2xl border px-4 text-sm font-black ${status.tone}`}
-            >
-              <StatusIcon className="h-4 w-4" />
-              {status.label}
-            </span>
-            <span className="inline-flex h-10 items-center gap-2 rounded-2xl border border-white/80 bg-white/80 px-4 text-sm font-black text-slate-700">
-              <Video className="h-4 w-4" />
-              {participants.length} na sala
-            </span>
-            <button
-              onClick={onLogout}
-              className="inline-flex h-10 items-center gap-2 rounded-2xl border border-rose-200 bg-white/86 px-4 text-sm font-black text-rose-700 transition hover:bg-rose-50"
-            >
-              <LogOut className="h-4 w-4" />
-              Sair
-            </button>
-          </div>
-        </header>
+          <section className="grid flex-1 gap-4 px-4 pb-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div className="flex min-h-[520px] flex-col overflow-hidden rounded-[1.8rem] border border-white/90 bg-white/68 p-3 shadow-2xl shadow-emerald-900/10 backdrop-blur-xl">
+              <FamilyVideoGrid />
+              <div className="mt-3 rounded-[1.4rem] border border-white/90 bg-white/90 p-2 shadow-sm">
+                <ControlBar
+                  saveUserChoices
+                  controls={{
+                    microphone: true,
+                    camera: true,
+                    screenShare: false,
+                    chat: false,
+                    settings: true,
+                    leave: true,
+                  }}
+                />
+              </div>
+            </div>
 
-        <section className="grid flex-1 gap-4 px-4 pb-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="flex min-h-[520px] flex-col overflow-hidden rounded-[1.8rem] border border-white/90 bg-white/68 p-3 shadow-2xl shadow-emerald-900/10 backdrop-blur-xl">
-            <FamilyVideoGrid />
-            <div className="mt-3 rounded-[1.4rem] border border-white/90 bg-white/90 p-2 shadow-sm">
-              <ControlBar
-                saveUserChoices
-                controls={{
-                  microphone: true,
-                  camera: true,
-                  screenShare: false,
-                  chat: false,
-                  settings: true,
-                  leave: true,
-                }}
+            <aside className="grid content-start gap-4">
+              <StatusPanel
+                name={name}
+                role={role}
+                isCameraEnabled={isCameraEnabled}
+                isMicrophoneEnabled={isMicrophoneEnabled}
               />
-            </div>
-          </div>
-
-          <aside className="grid content-start gap-4">
-            <StatusPanel
-              name={name}
-              role={role}
-              isCameraEnabled={isCameraEnabled}
-              isMicrophoneEnabled={isMicrophoneEnabled}
-            />
-            <WakeLockPanel />
-            <AffectionPanel />
-          </aside>
-        </section>
-      </div>
-    </main>
+              <WakeLockPanel />
+              <AffectionPanel />
+            </aside>
+          </section>
+        </div>
+      </main>
+    </LayoutContextProvider>
   );
 }
 
