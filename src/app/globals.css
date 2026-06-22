@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fcf4;
+  --foreground: #17231c;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+button,
+input {
+  letter-spacing: 0;
+}
+
+.ninho-livekit {
+  min-height: 100dvh;
+  background: #f8fcf4;
+  color: #17231c;
+}
+
+.ninho-video-grid [data-lk-participant-tile] {
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #18241f;
+}
+
+.ninho-video-grid [data-lk-video] {
+  object-fit: cover;
+}
+
+.ninho-video-grid [data-lk-participant-name] {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.88);
+  color: #17231c;
+  font-weight: 800;
+  padding: 0.35rem 0.7rem;
+}
+
+.ninho-livekit .lk-control-bar {
+  border: 0;
+  background: transparent;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0;
+}
+
+.ninho-livekit .lk-button {
+  min-width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  background: #f8fafc;
+  color: #17231c;
+  font-weight: 800;
+}
+
+.ninho-livekit .lk-button:hover {
+  background: #eef8ef;
+}
+
+.ninho-livekit .lk-button[data-lk-enabled="true"] {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.ninho-livekit .lk-disconnect-button {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+.ninho-livekit .lk-disconnect-button:hover {
+  background: #fecdd3;
+}
+
+.ninho-start-audio {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  border-radius: 1rem;
+  background: #24533f;
+  color: white;
+  padding: 0.75rem 1rem;
+  font-weight: 900;
+  box-shadow: 0 18px 40px rgba(36, 83, 63, 0.24);
+}
