@@ -62,6 +62,7 @@ export function NestRoom({ role, name }: NestRoomProps) {
   const router = useRouter();
   const [payload, setPayload] = useState<TokenPayload | null>(null);
   const [error, setError] = useState("");
+  const [roomError, setRoomError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -135,6 +136,26 @@ export function NestRoom({ role, name }: NestRoomProps) {
     );
   }
 
+  if (!isLiveKitUrl(payload.url)) {
+    return (
+      <RoomStateShell
+        title="URL do LiveKit inválida"
+        description="No Vercel, LIVEKIT_URL precisa ser a URL WebSocket do projeto LiveKit, começando com wss://."
+        action={<BackToStartButton onClick={handleLogout} />}
+      />
+    );
+  }
+
+  if (roomError) {
+    return (
+      <RoomStateShell
+        title="A chamada não abriu"
+        description={roomError}
+        action={<BackToStartButton onClick={handleLogout} />}
+      />
+    );
+  }
+
   return (
     <LiveKitRoom
       audio
@@ -143,6 +164,12 @@ export function NestRoom({ role, name }: NestRoomProps) {
       token={payload.token}
       serverUrl={payload.url}
       onDisconnected={() => router.push("/")}
+      onError={(liveKitError) =>
+        setRoomError(
+          liveKitError.message ||
+            "Confira LIVEKIT_URL, LIVEKIT_API_KEY e LIVEKIT_API_SECRET no Vercel.",
+        )
+      }
       className="ninho-livekit"
       data-lk-theme="default"
     >
@@ -150,6 +177,27 @@ export function NestRoom({ role, name }: NestRoomProps) {
       <StartAudio label="Ouvir áudio" className="ninho-start-audio" />
       <CallSurface name={name} role={role} onLogout={handleLogout} />
     </LiveKitRoom>
+  );
+}
+
+function isLiveKitUrl(url: string) {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "wss:" || parsed.protocol === "ws:";
+  } catch {
+    return false;
+  }
+}
+
+function BackToStartButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[#24533f] px-5 font-black text-white"
+    >
+      <Power className="h-5 w-5" />
+      Voltar para entrada
+    </button>
   );
 }
 

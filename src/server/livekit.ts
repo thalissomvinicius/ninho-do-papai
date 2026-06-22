@@ -3,16 +3,53 @@ import { AccessToken } from "livekit-server-sdk";
 import { FAMILY } from "@/shared/family";
 import type { FamilySession } from "@/server/session";
 
+export function normalizeLiveKitUrl(rawUrl?: string) {
+  if (!rawUrl) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(rawUrl.trim());
+
+    if (parsed.hostname === "cloud.livekit.io") {
+      return null;
+    }
+
+    if (parsed.protocol === "https:") {
+      parsed.protocol = "wss:";
+    }
+
+    if (parsed.protocol === "http:") {
+      parsed.protocol = "ws:";
+    }
+
+    if (parsed.protocol !== "wss:" && parsed.protocol !== "ws:") {
+      return null;
+    }
+
+    parsed.pathname = "";
+    parsed.search = "";
+    parsed.hash = "";
+
+    return parsed.toString().replace(/\/$/, "");
+  } catch {
+    return null;
+  }
+}
+
 export function getLiveKitConfig() {
-  const url = process.env.LIVEKIT_URL;
+  const rawUrl = process.env.LIVEKIT_URL;
+  const url = normalizeLiveKitUrl(rawUrl);
   const apiKey = process.env.LIVEKIT_API_KEY;
   const apiSecret = process.env.LIVEKIT_API_SECRET;
 
   return {
+    rawUrl,
     url,
     apiKey,
     apiSecret,
     isConfigured: Boolean(url && apiKey && apiSecret),
+    hasInvalidUrl: Boolean(rawUrl && !url),
   };
 }
 

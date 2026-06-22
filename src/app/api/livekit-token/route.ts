@@ -15,7 +15,19 @@ export async function POST() {
     );
   }
 
-  if (!getLiveKitConfig().isConfigured) {
+  const config = getLiveKitConfig();
+
+  if (config.hasInvalidUrl) {
+    return NextResponse.json(
+      {
+        message:
+          "LIVEKIT_URL está inválida. Use a URL WebSocket do projeto, começando com wss://, não a URL do painel cloud.livekit.io.",
+      },
+      { status: 503 },
+    );
+  }
+
+  if (!config.isConfigured) {
     return NextResponse.json(
       {
         message:
